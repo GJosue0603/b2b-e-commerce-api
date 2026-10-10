@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\b2b-e-commerce-utilities\b2b-e-commerce-utilities.csproj" />
+    <ProjectReference Include="..\b2b-e-commerce-utilities\b2b-e-commerce-utilities.csproj" />
     <ProjectReference Include="..\b2b-e-commerce-models\b2b-e-commerce-models.csproj" />
     <ProjectReference Include="..\b2b-e-commerce-repository\b2b-e-commerce-repository.csproj" />
   </ItemGroup>

@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "b2b-e-commerce-repository",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "b2b-e-commerce-models", "src\b2b-e-commerce-models\b2b-e-commerce-models.csproj", "{7D873D11-4452-45A0-85EB-0CB7295C0CD3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "b2b-e-commerce-utilities", "b2b-e-commerce-utilities\b2b-e-commerce-utilities.csproj", "{D8282CAB-50F5-4C4C-89A1-C8037E314B40}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "b2b-e-commerce-utilities", "src\b2b-e-commerce-utilities\b2b-e-commerce-utilities.csproj", "{D8282CAB-50F5-4C4C-89A1-C8037E314B40}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
