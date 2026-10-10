@@ -18,6 +18,6 @@ public class Usuario
     public string Telefono { get; set; }
     public RolUsuario Rol { get; set; }
     public bool Activo { get; set; }
-    public bool FechaCreacion { get; set; }
-    public bool FechaActualizacion { get; set; }
+    public DateTime FechaCreacion { get; set; }
+    public DateTime FechaActualizacion { get; set; }
 }

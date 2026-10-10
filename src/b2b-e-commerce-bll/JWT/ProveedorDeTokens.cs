@@ -4,14 +4,20 @@ using System.Text;
 using b2b_e_commerce_models;
 using JsobWebToken = Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Configuration;
 
-namespace b2b_e_commerce_api;
+namespace b2b_e_commerce_bll;
 
-internal sealed class ProveedorDeTokens(IConfiguration configuracion)
+public interface IProveedorDeTokens
 {
-    public string Crear(Usuario usuario)
+    string CrearToken(Usuario usuario);
+}
+
+public class ProveedorDeTokens(IConfiguration configuracion) : IProveedorDeTokens
+{
+    public string CrearToken(Usuario usuario)
     {
-        string llaveSecreta = configuracion["Jwt:Secret"];
+        string llaveSecreta = configuracion["Jwt:Secreto"];
         var llaveDeSeguridad = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(llaveSecreta));
 
         var credenciales = new SigningCredentials(llaveDeSeguridad, SecurityAlgorithms.HmacSha256);

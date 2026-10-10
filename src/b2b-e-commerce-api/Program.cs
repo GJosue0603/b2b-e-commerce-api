@@ -1,4 +1,5 @@
 using b2b_e_commerce_api;
+using b2b_e_commerce_bll.JWT;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +17,10 @@ builder.Services.AddEndpointsApiExplorer();
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer<TransformadorSeguridadBearer>();
+});
 
 // Registrar Dependencias
 builder.Services.ConfigurarServicios(builder.Configuration);
@@ -38,7 +42,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.MapControllers();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.Run();

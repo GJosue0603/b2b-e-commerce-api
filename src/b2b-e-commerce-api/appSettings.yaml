@@ -5,5 +5,7 @@ App:
 Jwt:
   Secreto: ""
   ExpiracionEnMinutos: 60
-  Emisor: "b2b-e-commerce-backend"
+  # Issuer
+  Emisor: "b2b-e-commerce-api"
+  # Audience
   Audiencia: "b2b-e-commerce-frontend"
