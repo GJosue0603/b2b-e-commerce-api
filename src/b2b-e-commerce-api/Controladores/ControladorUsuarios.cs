@@ -1,9 +1,12 @@
-using System.Net;
 using b2b_e_commerce_bll;
 using b2b_e_commerce_models;
+using b2b_e_commerce_utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
+using System.ComponentModel.DataAnnotations;
+using System.Net;
+using System.Text.RegularExpressions;
 
 namespace b2b_e_commerce_api;
 
@@ -43,9 +46,20 @@ public class ControladorUsuarios : Controller
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> Login([FromBody] LoginDeUsuario loginDeUsuario)
     {
-        // TODO: Validar que los datos no estén vacíos o nulos
+        if (string.IsNullOrWhiteSpace(loginDeUsuario.Correo))
+        {
+            return BadRequest("El Correo es requerido.");
+        }
 
-        // TODO: Validar que el correo tenga un formato correcto
+        if (string.IsNullOrWhiteSpace(loginDeUsuario.Contrasena))
+        {
+            return BadRequest("La Contraseña es requerida.");
+        }
+
+        if (!ValidadorDeCorreo.EsValido(loginDeUsuario.Correo))
+        {
+            return BadRequest("El formato del correo electrónico no es válido.");
+        }
 
         var token = await _servicioDeUsuarios.Login(loginDeUsuario);
 
@@ -58,10 +72,6 @@ public class ControladorUsuarios : Controller
     [ProducesResponseType(typeof(Usuario), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> ObtenerUsuario(string usuarioId)
     {
-        // TODO: Validar que el ID no esté nulo
-
-        // TODO: Validar que el ID sea un MongoDB Object Id
-
         if (string.IsNullOrWhiteSpace(usuarioId))
         {
             return BadRequest("El UsuarioId es requerido.");
