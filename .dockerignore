@@ -1,0 +1,9 @@
+**/bin/
+**/obj/
+.git/
+.vs/
+.vscode/
+**/appSettings.local.yaml
+**/appSettings.yaml.token
+**/.env
+**/secrets/

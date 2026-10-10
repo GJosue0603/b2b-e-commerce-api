@@ -1,0 +1,9 @@
+App:
+  Nombre: "B2B E-Commerce API"
+  Environment: "dev"
+
+Jwt:
+  Secreto: ""
+  ExpiracionEnMinutos: 60
+  Emisor: "b2b-e-commerce-backend"
+  Audiencia: "b2b-e-commerce-frontend"
