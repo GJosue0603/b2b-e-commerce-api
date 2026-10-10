@@ -1,3 +1,5 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using b2b_e_commerce_api;
 using b2b_e_commerce_bll.JWT;
 
@@ -10,7 +12,11 @@ builder.Configuration
     .AddEnvironmentVariables();
 
 // Register Controller services
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
 // API endpoint discovery
 builder.Services.AddEndpointsApiExplorer();
@@ -42,8 +48,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.MapControllers();
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapControllers();
 
 app.Run();

@@ -6,6 +6,7 @@ namespace b2b_e_commerce_bll;
 
 public interface IServicioDeUsuarios
 {
+    Task<Usuario> ObtenerUsuarioPorId(string id);
     Task<string> Login(LoginDeUsuario loginDeUsuario);
 }
 
@@ -18,6 +19,11 @@ public class ServicioDeUsuarios : IServicioDeUsuarios
     {
         _repositorioDeUsuarios = repositorioDeUsuarios ?? throw new ArgumentNullException(nameof(repositorioDeUsuarios));
         _proveedorDeTokens = proveedorDeTokens ?? throw new ArgumentNullException(nameof(proveedorDeTokens));
+    }
+
+    public async Task<Usuario> ObtenerUsuarioPorId(string id)
+    {
+        return await _repositorioDeUsuarios.ObtenerUsuarioPorId(id);
     }
 
     public async Task<string> Login(LoginDeUsuario loginDeUsuario)

@@ -3,6 +3,7 @@ using b2b_e_commerce_bll;
 using b2b_e_commerce_repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using MongoDB.Driver;
 
 namespace b2b_e_commerce_api;
 
@@ -25,16 +26,18 @@ public static class ConfiguracionDeServicios
                     ValidIssuer = configuracion["Jwt:Emisor"],
                     ValidAudience = configuracion["Jwt:Audiencia"],
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuracion["Jwt:Secreto"])),
-                    ClockSkew = TimeSpan.Zero
+                    ClockSkew = TimeSpan.Zero,
+                    RoleClaimType = "rol"
                 };
         });
         servicios.AddSingleton<IProveedorDeTokens, ProveedorDeTokens>();
 
         // Servicios
-        servicios.AddSingleton<IServicioDeUsuarios, ServicioDeUsuarios>();
+        servicios.AddScoped<IServicioDeUsuarios, ServicioDeUsuarios>();
         
         // Repositorios
-        servicios.AddSingleton<IRepositorioDeUsuarios, RepositorioDeUsuarios>();
+        servicios.AddTransient<IMongoClient, MongoClient>(_ => new MongoClient(configuracion.GetConnectionString("Mongo")));
+        servicios.AddScoped<IRepositorioDeUsuarios, RepositorioDeUsuarios>();
         
         return servicios;
     }
