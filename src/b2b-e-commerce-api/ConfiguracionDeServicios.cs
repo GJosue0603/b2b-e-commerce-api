@@ -36,7 +36,7 @@ public static class ConfiguracionDeServicios
         servicios.AddScoped<IServicioDeUsuarios, ServicioDeUsuarios>();
         
         // Repositorios
-        servicios.AddTransient<IMongoClient, MongoClient>(_ => new MongoClient(configuracion.GetConnectionString("Mongo")));
+        servicios.AddTransient<IMongoClient, MongoClient>(_ => new MongoClient(configuracion["Mongo:ConnectionString"]));
         servicios.AddScoped<IRepositorioDeUsuarios, RepositorioDeUsuarios>();
         
         return servicios;

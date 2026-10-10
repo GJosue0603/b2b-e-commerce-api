@@ -42,7 +42,7 @@ public class ServicioDeUsuarios : IServicioDeUsuarios
             Correo = "sshernandez027@gmail.com",
             ContrasenaHash = "testing123",
             Telefono = "+506 8314-6362",
-            Rol = RolUsuario.Comprador,
+            Rol = RolUsuario.Administrador,
             Activo = true,
             FechaCreacion = DateTime.UtcNow,
             FechaActualizacion = DateTime.UtcNow

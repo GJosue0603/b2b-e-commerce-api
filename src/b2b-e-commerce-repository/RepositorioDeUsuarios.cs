@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using b2b_e_commerce_models;
+using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
 
 namespace b2b_e_commerce_repository;
@@ -11,13 +12,14 @@ public interface IRepositorioDeUsuarios
 
 public class RepositorioDeUsuarios : IRepositorioDeUsuarios
 {
-    private readonly string DATABASE_NAME = "b2b-e-commerce";
-    private readonly string COLLECTION_NAME = "usuarios_dev";
+    private readonly string COLLECTION_NAME = "usuarios";
     private readonly IMongoClient _client;
     private readonly IMongoCollection<Usuario> _collection;
-    public RepositorioDeUsuarios(IMongoClient client)
+    public RepositorioDeUsuarios(IMongoClient client, IConfiguration configuracion)
     {
         _client = client ?? throw new ArgumentNullException(nameof(client));
+
+        var DATABASE_NAME = configuracion["Mongo:Database"] ?? throw new ArgumentNullException(nameof(configuracion), "Database name is not configured.");
 
         try
         {
