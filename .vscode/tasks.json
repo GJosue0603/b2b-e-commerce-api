@@ -1,0 +1,25 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build b2b-api",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/src/b2b-e-commerce-api/b2b-e-commerce-api.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile",
+            "presentation": {
+                "clear": true
+            },
+            // Make 'build' the default command for key sequence SHIFT-COMMAND-B
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
