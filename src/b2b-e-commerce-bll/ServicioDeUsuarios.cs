@@ -1,5 +1,7 @@
 using b2b_e_commerce_models;
 using b2b_e_commerce_repository;
+using b2b_e_commerce_utilities;
+using Microsoft.AspNetCore.Components.Forms;
 using MongoDB.Bson;
 
 namespace b2b_e_commerce_bll;
@@ -28,25 +30,17 @@ public class ServicioDeUsuarios : IServicioDeUsuarios
 
     public async Task<string> Login(LoginDeUsuario loginDeUsuario)
     {
-        // TODO: Validar que los datos no estén vacíos o nulos
+        var usuario = await _repositorioDeUsuarios.ObtenerUsuarioPorCorreo(loginDeUsuario.Correo);
 
-        // TODO: Validar que el usuario exista en la base de datos y que la contraseña sea correcta
-
-        // TODO: Obtener el usuario de la base de datos
-        var usuario = new Usuario
+        if (usuario == null || !usuario.Activo)
         {
-            Id = ObjectId.GenerateNewId().ToString(),
-            Nombre = "Sebastián",
-            Apellido1 = "Sánchez",
-            Apellido2 = null,
-            Correo = "sshernandez027@gmail.com",
-            ContrasenaHash = "testing123",
-            Telefono = "+506 8314-6362",
-            Rol = RolUsuario.Administrador,
-            Activo = true,
-            FechaCreacion = DateTime.UtcNow,
-            FechaActualizacion = DateTime.UtcNow
-        };
+            throw new KeyNotFoundException("Usuario no encontrado");
+        }
+
+        if (!UtilidadesContrasena.Verificar(loginDeUsuario.Contrasena, usuario.ContrasenaHash))
+        {
+            throw new UnauthorizedAccessException("Correo o contraseña incorrectos");
+        }
 
         // TODO: Generar un token JWT y devolverlo al usuario
         var token = _proveedorDeTokens.CrearToken(usuario);
