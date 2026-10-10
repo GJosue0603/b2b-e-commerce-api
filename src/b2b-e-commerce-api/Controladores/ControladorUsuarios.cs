@@ -23,6 +23,7 @@ public class ControladorUsuarios : Controller
     [HttpPost]
     [Route("registrar")]
     [AllowAnonymous]
+    // [ApiExplorerSettings(IgnoreApi = true)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> Registrar([FromBody] RegistroDeUsuario registroDeUsuario)
     {
@@ -38,6 +39,7 @@ public class ControladorUsuarios : Controller
     [HttpPost]
     [Route("login")]
     [AllowAnonymous]
+    // [ApiExplorerSettings(IgnoreApi = true)]
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> Login([FromBody] LoginDeUsuario loginDeUsuario)
     {
@@ -52,6 +54,7 @@ public class ControladorUsuarios : Controller
 
     [HttpGet]
     [Route("{usuarioId}")]
+    [Authorize(Roles = "Administrador")]
     [ProducesResponseType(typeof(Usuario), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> ObtenerUsuario(string usuarioId)
     {
