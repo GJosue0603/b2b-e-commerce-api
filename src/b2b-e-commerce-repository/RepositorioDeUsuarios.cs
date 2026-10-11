@@ -6,9 +6,9 @@ namespace b2b_e_commerce_repository;
 
 public interface IRepositorioDeUsuarios
 {
-    Task<Usuario?> ObtenerUsuarioPorId(string id);
+    Task<Usuario> ObtenerUsuarioPorId(string id);
 
-    Task<Usuario?> ObtenerUsuarioPorCorreo(string correo);
+    Task<Usuario> ObtenerUsuarioPorCorreo(string correo);
 }
 
 public class RepositorioDeUsuarios : IRepositorioDeUsuarios
@@ -30,7 +30,7 @@ public class RepositorioDeUsuarios : IRepositorioDeUsuarios
         _collection = client.GetDatabase(databaseName).GetCollection<Usuario>(COLLECTION_NAME);
     }
 
-    public async Task<Usuario?> ObtenerUsuarioPorId(string id)
+    public async Task<Usuario> ObtenerUsuarioPorId(string id)
     {
         var filter = Builders<Usuario>.Filter.Eq(u => u.Id, id);
 
@@ -39,7 +39,7 @@ public class RepositorioDeUsuarios : IRepositorioDeUsuarios
         return usuario;
     }
 
-    public async Task<Usuario?> ObtenerUsuarioPorCorreo(string correo)
+    public async Task<Usuario> ObtenerUsuarioPorCorreo(string correo)
     {
         var filter = Builders<Usuario>.Filter.Eq(u => u.Correo, correo);
 
