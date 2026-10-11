@@ -27,6 +27,7 @@ public class ProveedorDeTokens(IConfiguration configuracion) : IProveedorDeToken
             Subject = new ClaimsIdentity([
                 new Claim(JwtRegisteredClaimNames.Sub, usuario.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, usuario.Correo),
+                new Claim("correo_verificado", usuario.CorreoVerificado.ToString()),
                 new Claim("activo", usuario.Activo.ToString()),
                 new Claim("rol", usuario.Rol.ToString())
             ]),

@@ -19,18 +19,19 @@ public class RepositorioDeUsuarios : IRepositorioDeUsuarios
     private readonly IMongoCollection<Usuario> _collection;
     public RepositorioDeUsuarios(IMongoClient client, IConfiguration configuracion)
     {
-        _client = client ?? throw new ArgumentNullException(nameof(client));
+        ArgumentNullException.ThrowIfNull(client);
 
-        var DATABASE_NAME = configuracion["Mongo:Database"] ?? throw new ArgumentNullException(nameof(configuracion), "Database name is not configured.");
+        var databaseName = configuracion["Mongo:Database"];
 
-        try
+        if (string.IsNullOrWhiteSpace(databaseName))
         {
-            _collection = _client.GetDatabase(DATABASE_NAME).GetCollection<Usuario>(COLLECTION_NAME);
+            throw new InvalidOperationException(
+                "MongoDB database name is not configured.");
         }
-        catch (Exception ex)
-        {
-            Debug.WriteLine(ex, ex.Message);
-        }
+
+        _collection = client
+            .GetDatabase(databaseName)
+            .GetCollection<Usuario>("usuarios");
     }
 
     public async Task<Usuario> ObtenerUsuarioPorId(string id)
@@ -50,5 +51,4 @@ public class RepositorioDeUsuarios : IRepositorioDeUsuarios
 
         return usuario;
     }
-
 }
