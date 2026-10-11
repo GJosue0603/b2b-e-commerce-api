@@ -4,9 +4,7 @@ using b2b_e_commerce_utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
-using System.ComponentModel.DataAnnotations;
 using System.Net;
-using System.Text.RegularExpressions;
 
 namespace b2b_e_commerce_api;
 
@@ -61,15 +59,21 @@ public class ControladorUsuarios : Controller
             return BadRequest("El formato del correo electrónico no es válido.");
         }
 
-        var token = await _servicioDeUsuarios.Login(loginDeUsuario);
-
-        return Ok(token);
+        try
+        {
+            var token = await _servicioDeUsuarios.Login(loginDeUsuario);
+            return Ok(token);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(ex.Message);
+        }
     }
 
     [HttpGet]
     [Route("{usuarioId}")]
     [Authorize(Roles = "Administrador")]
-    [ProducesResponseType(typeof(Usuario), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(RespuestaDeUsuario), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> ObtenerUsuario(string usuarioId)
     {
         if (string.IsNullOrWhiteSpace(usuarioId))
@@ -85,8 +89,8 @@ public class ControladorUsuarios : Controller
         var res = await _servicioDeUsuarios.ObtenerUsuarioPorId(usuarioId);
 
         if (res != null)
-            return Ok(res);
+            return Ok(MapeadorDeUsuarios.ARespuestaDeUsuario(res));
 
-        return NoContent();
+        return NotFound("Usuario no encontrado.");
     }
 }

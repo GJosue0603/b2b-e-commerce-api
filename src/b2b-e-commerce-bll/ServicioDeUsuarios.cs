@@ -1,8 +1,6 @@
 using b2b_e_commerce_models;
 using b2b_e_commerce_repository;
 using b2b_e_commerce_utilities;
-using Microsoft.AspNetCore.Components.Forms;
-using MongoDB.Bson;
 
 namespace b2b_e_commerce_bll;
 
@@ -32,17 +30,11 @@ public class ServicioDeUsuarios : IServicioDeUsuarios
     {
         var usuario = await _repositorioDeUsuarios.ObtenerUsuarioPorCorreo(loginDeUsuario.Correo);
 
-        if (usuario == null || !usuario.Activo)
-        {
-            throw new KeyNotFoundException("Usuario no encontrado");
-        }
-
-        if (!UtilidadesContrasena.Verificar(loginDeUsuario.Contrasena, usuario.ContrasenaHash))
+        if (usuario == null || !usuario.Activo || !usuario.CorreoVerificado || !UtilidadesContrasena.Verificar(loginDeUsuario.Contrasena, usuario.ContrasenaHash))
         {
             throw new UnauthorizedAccessException("Correo o contraseña incorrectos");
         }
 
-        // TODO: Generar un token JWT y devolverlo al usuario
         var token = _proveedorDeTokens.CrearToken(usuario);
 
         return token;
