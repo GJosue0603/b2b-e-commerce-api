@@ -23,8 +23,7 @@ public class RepositorioDeUsuarios : IRepositorioDeUsuarios
 
         if (string.IsNullOrWhiteSpace(databaseName))
         {
-            throw new InvalidOperationException(
-                "MongoDB database name is not configured.");
+            throw new InvalidOperationException("MongoDB database name is not configured.");
         }
 
         _collection = client.GetDatabase(databaseName).GetCollection<Usuario>(COLLECTION_NAME);
