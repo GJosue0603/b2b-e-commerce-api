@@ -16,7 +16,9 @@ public static class MapeadorDeUsuarios
             Telefono = usuario.Telefono,
             Rol = usuario.Rol,
             Activo = usuario.Activo,
-            CorreoVerificado = usuario.CorreoVerificado
+            CorreoVerificado = usuario.CorreoVerificado,
+            FechaCreacion = usuario.FechaCreacion,
+            FechaActualizacion = usuario.FechaActualizacion
         };
     }
 }
