@@ -1,5 +1,6 @@
 using System.Text;
 using b2b_e_commerce_bll;
+using b2b_e_commerce_models;
 using b2b_e_commerce_bll.JWT;
 using b2b_e_commerce_repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -18,27 +19,19 @@ namespace b2b_e_commerce_api
             var audiencia = configuracion["Jwt:Audiencia"];
             var expiracion = configuracion.GetValue<int>("Jwt:ExpiracionEnMinutos");
 
-            if (string.IsNullOrWhiteSpace(secreto) ||
-                secreto.StartsWith("__") ||
-                Encoding.UTF8.GetByteCount(secreto) < 32)
+            if (string.IsNullOrWhiteSpace(secreto) || secreto.StartsWith("__") || Encoding.UTF8.GetByteCount(secreto) < 32)
             {
-                throw new InvalidOperationException(
-                    "Jwt:Secreto debe contener una clave válida de al menos 32 bytes.");
+                throw new InvalidOperationException("Jwt:Secreto debe contener una clave válida de al menos 32 bytes.");
             }
 
-            if (string.IsNullOrWhiteSpace(emisor) ||
-                string.IsNullOrWhiteSpace(audiencia) ||
-                emisor.StartsWith("__") ||
-                audiencia.StartsWith("__"))
+            if (string.IsNullOrWhiteSpace(emisor) || string.IsNullOrWhiteSpace(audiencia) || emisor.StartsWith("__") || audiencia.StartsWith("__"))
             {
-                throw new InvalidOperationException(
-                    "Jwt:Emisor y Jwt:Audiencia deben estar configurados.");
+                throw new InvalidOperationException("Jwt:Emisor y Jwt:Audiencia deben estar configurados.");
             }
 
             if (expiracion <= 0)
             {
-                throw new InvalidOperationException(
-                    "Jwt:ExpiracionEnMinutos debe ser mayor que cero.");
+                throw new InvalidOperationException("Jwt:ExpiracionEnMinutos debe ser mayor que cero.");
             }
 
             servicios.AddAuthorization();
@@ -67,12 +60,9 @@ namespace b2b_e_commerce_api
 
             // Repositorios
             var mongoConnectionString = configuracion["Mongo:ConnectionString"];
-
-            if (string.IsNullOrWhiteSpace(mongoConnectionString) ||
-                mongoConnectionString.StartsWith("__"))
+            if (string.IsNullOrWhiteSpace(mongoConnectionString) || mongoConnectionString.StartsWith("__"))
             {
-                throw new InvalidOperationException(
-                    "Mongo:ConnectionString no está configurada.");
+                throw new InvalidOperationException("Mongo:ConnectionString no está configurada.");
             }
 
             servicios.AddSingleton<IMongoClient>(_ => new MongoClient(mongoConnectionString));
