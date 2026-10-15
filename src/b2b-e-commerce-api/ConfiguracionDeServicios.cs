@@ -55,13 +55,14 @@ public static class ConfiguracionDeServicios
                     ValidAudience = audiencia,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secreto)),
                     ClockSkew = TimeSpan.Zero,
-                    RoleClaimType = Constantes.RolClaim
+                    RoleClaimType = Constantes.ROL_CLAIM
                 };
         });
         servicios.AddSingleton<IProveedorDeTokens, ProveedorDeTokens>();
 
         // Servicios
         servicios.AddScoped<IServicioDeUsuarios, ServicioDeUsuarios>();
+        servicios.AddScoped<IServicioDeAutenticacion, ServicioDeAutenticacion>();
 
         // Repositorios
         var mongoConnectionString = configuracion["Mongo:ConnectionString"];

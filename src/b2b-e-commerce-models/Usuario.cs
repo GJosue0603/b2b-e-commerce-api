@@ -14,7 +14,6 @@ public class Usuario
     public string Apellido1 { get; set; }
     public string Apellido2 { get; set; }
     public string Correo { get; set; }
-    public bool CorreoVerificado { get; set; } = false;
     public string ContrasenaHash { get; set; }
     public string Telefono { get; set; }
     public string Rol { get; set; }

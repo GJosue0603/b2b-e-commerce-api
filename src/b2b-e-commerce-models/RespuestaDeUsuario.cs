@@ -7,7 +7,6 @@ public class RespuestaDeUsuario
     public string Apellido1 { get; set; }
     public string Apellido2 { get; set; }
     public string Correo { get; set; }
-    public bool CorreoVerificado { get; set; } = false;
     public string Telefono { get; set; }
     public string Rol { get; set; }
     public bool Activo { get; set; }

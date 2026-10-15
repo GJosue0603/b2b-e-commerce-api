@@ -27,9 +27,8 @@ public class ProveedorDeTokens(IConfiguration configuracion) : IProveedorDeToken
             Subject = new ClaimsIdentity([
                 new Claim(JwtRegisteredClaimNames.Sub, usuario.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, usuario.Correo),
-                new Claim(Constantes.CorreoVerificadoClaim, usuario.CorreoVerificado.ToString()),
-                new Claim(Constantes.ActivoClaim, usuario.Activo.ToString()),
-                new Claim(Constantes.RolClaim, usuario.Rol.ToString())
+                new Claim(Constantes.ACTIVO_CLAIM, usuario.Activo.ToString()),
+                new Claim(Constantes.ROL_CLAIM, usuario.Rol.ToString())
             ]),
             Expires = DateTime.UtcNow.AddMinutes(configuracion.GetValue<int>("Jwt:ExpiracionEnMinutos")),
             SigningCredentials = credenciales,
