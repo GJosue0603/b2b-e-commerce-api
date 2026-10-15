@@ -6,39 +6,40 @@ using JsobWebToken = Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Configuration;
 
-namespace b2b_e_commerce_bll;
-
-public interface IProveedorDeTokens
+namespace b2b_e_commerce_bll.JWT
 {
-    string CrearToken(Usuario usuario);
-}
-
-public class ProveedorDeTokens(IConfiguration configuracion) : IProveedorDeTokens
-{
-    public string CrearToken(Usuario usuario)
+    public interface IProveedorDeTokens
     {
-        string llaveSecreta = configuracion["Jwt:Secreto"];
-        var llaveDeSeguridad = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(llaveSecreta));
+        string CrearToken(Usuario usuario);
+    }
 
-        var credenciales = new SigningCredentials(llaveDeSeguridad, SecurityAlgorithms.HmacSha256);
-
-        var descripcionDelToken = new SecurityTokenDescriptor
+    public class ProveedorDeTokens(IConfiguration configuracion) : IProveedorDeTokens
+    {
+        public string CrearToken(Usuario usuario)
         {
-            Subject = new ClaimsIdentity([
-                new Claim(JwtRegisteredClaimNames.Sub, usuario.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Email, usuario.Correo),
-                new Claim(Constantes.ACTIVO_CLAIM, usuario.Activo.ToString()),
-                new Claim(Constantes.ROL_CLAIM, usuario.Rol.ToString())
-            ]),
-            Expires = DateTime.UtcNow.AddMinutes(configuracion.GetValue<int>("Jwt:ExpiracionEnMinutos")),
-            SigningCredentials = credenciales,
-            Issuer = configuracion["Jwt:Emisor"],
-            Audience = configuracion["Jwt:Audiencia"]
-        };
+            string llaveSecreta = configuracion["Jwt:Secreto"];
+            var llaveDeSeguridad = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(llaveSecreta));
 
-        var manejadorDeTokens = new JsobWebToken.JsonWebTokenHandler();
-        var token = manejadorDeTokens.CreateToken(descripcionDelToken);
+            var credenciales = new SigningCredentials(llaveDeSeguridad, SecurityAlgorithms.HmacSha256);
 
-        return token;
+            var descripcionDelToken = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity([
+                    new Claim(JwtRegisteredClaimNames.Sub, usuario.Id.ToString()),
+                    new Claim(JwtRegisteredClaimNames.Email, usuario.Correo),
+                    new Claim(Constantes.ACTIVO_CLAIM, usuario.Activo.ToString()),
+                    new Claim(Constantes.ROL_CLAIM, usuario.Rol.ToString())
+                ]),
+                Expires = DateTime.UtcNow.AddMinutes(configuracion.GetValue<int>("Jwt:ExpiracionEnMinutos")),
+                SigningCredentials = credenciales,
+                Issuer = configuracion["Jwt:Emisor"],
+                Audience = configuracion["Jwt:Audiencia"]
+            };
+
+            var manejadorDeTokens = new JsobWebToken.JsonWebTokenHandler();
+            var token = manejadorDeTokens.CreateToken(descripcionDelToken);
+
+            return token;
+        }
     }
 }

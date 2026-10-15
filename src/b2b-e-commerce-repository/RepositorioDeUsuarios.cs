@@ -1,64 +1,65 @@
 using b2b_e_commerce_models;
-using b2b_e_commerce_utilities;
+using b2b_e_commerce_utilities.Excepciones;
 using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
 
-namespace b2b_e_commerce_repository;
-
-public interface IRepositorioDeUsuarios
+namespace b2b_e_commerce_repository
 {
-    Task<Usuario> ObtenerUsuarioPorId(string id);
-    Task<Usuario> ObtenerUsuarioPorCorreo(string correo);
-    Task<Usuario> RegistrarUsuario(Usuario usuario);
-}
-
-public class RepositorioDeUsuarios : IRepositorioDeUsuarios
-{
-    private readonly string COLLECTION_NAME = "usuarios";
-    private readonly IMongoCollection<Usuario> _collection;
-    public RepositorioDeUsuarios(IMongoClient client, IConfiguration configuracion)
+    public interface IRepositorioDeUsuarios
     {
-        ArgumentNullException.ThrowIfNull(client);
+        Task<Usuario> ObtenerUsuarioPorId(string id);
+        Task<Usuario> ObtenerUsuarioPorCorreo(string correo);
+        Task<Usuario> RegistrarUsuario(Usuario usuario);
+    }
 
-        var databaseName = configuracion["Mongo:Database"];
-
-        if (string.IsNullOrWhiteSpace(databaseName))
+    public class RepositorioDeUsuarios : IRepositorioDeUsuarios
+    {
+        private readonly string COLLECTION_NAME = "usuarios";
+        private readonly IMongoCollection<Usuario> _collection;
+        public RepositorioDeUsuarios(IMongoClient client, IConfiguration configuracion)
         {
-            throw new InvalidOperationException("MongoDB database name is not configured.");
+            ArgumentNullException.ThrowIfNull(client);
+
+            var databaseName = configuracion["Mongo:Database"];
+
+            if (string.IsNullOrWhiteSpace(databaseName))
+            {
+                throw new InvalidOperationException("MongoDB database name is not configured.");
+            }
+
+            _collection = client.GetDatabase(databaseName).GetCollection<Usuario>(COLLECTION_NAME);
         }
 
-        _collection = client.GetDatabase(databaseName).GetCollection<Usuario>(COLLECTION_NAME);
-    }
-
-    public async Task<Usuario> ObtenerUsuarioPorId(string id)
-    {
-        var filter = Builders<Usuario>.Filter.Eq(u => u.Id, id);
-
-        var usuario = await _collection.Find(filter).FirstOrDefaultAsync();
-
-        return usuario;
-    }
-
-    public async Task<Usuario> ObtenerUsuarioPorCorreo(string correo)
-    {
-        var filter = Builders<Usuario>.Filter.Eq(u => u.Correo, correo);
-
-        var usuario = await _collection.Find(filter).FirstOrDefaultAsync();
-
-        return usuario;
-    }
-
-    public async Task<Usuario> RegistrarUsuario(Usuario usuario)
-    {
-        try
+        public async Task<Usuario> ObtenerUsuarioPorId(string id)
         {
-            await _collection.InsertOneAsync(usuario);
+            var filter = Builders<Usuario>.Filter.Eq(u => u.Id, id);
+
+            var usuario = await _collection.Find(filter).FirstOrDefaultAsync();
 
             return usuario;
         }
-        catch (MongoWriteException ex) when (ex.WriteError.Category == ServerErrorCategory.DuplicateKey)
+
+        public async Task<Usuario> ObtenerUsuarioPorCorreo(string correo)
         {
-            throw new CorreoDuplicadoException();
+            var filter = Builders<Usuario>.Filter.Eq(u => u.Correo, correo);
+
+            var usuario = await _collection.Find(filter).FirstOrDefaultAsync();
+
+            return usuario;
+        }
+
+        public async Task<Usuario> RegistrarUsuario(Usuario usuario)
+        {
+            try
+            {
+                await _collection.InsertOneAsync(usuario);
+
+                return usuario;
+            }
+            catch (MongoWriteException ex) when (ex.WriteError.Category == ServerErrorCategory.DuplicateKey)
+            {
+                throw new CorreoDuplicadoException();
+            }
         }
     }
 }

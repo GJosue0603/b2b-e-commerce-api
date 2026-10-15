@@ -1,23 +1,24 @@
 using b2b_e_commerce_models;
 
-namespace b2b_e_commerce_utilities;
-
-public static class MapeadorDeUsuarios
+namespace b2b_e_commerce_utilities
 {
-    public static RespuestaDeUsuario ARespuestaDeUsuario(Usuario usuario)
+    public static class MapeadorDeUsuarios
     {
-        return new RespuestaDeUsuario
+        public static RespuestaDeUsuario ARespuestaDeUsuario(Usuario usuario)
         {
-            Id = usuario.Id,
-            Nombre = usuario.Nombre,
-            Apellido1 = usuario.Apellido1,
-            Apellido2 = usuario.Apellido2,
-            Correo = usuario.Correo,
-            Telefono = usuario.Telefono,
-            Rol = usuario.Rol,
-            Activo = usuario.Activo,
-            FechaCreacion = usuario.FechaCreacion,
-            FechaActualizacion = usuario.FechaActualizacion
-        };
+            return new RespuestaDeUsuario
+            {
+                Id = usuario.Id,
+                Nombre = usuario.Nombre,
+                Apellido1 = usuario.Apellido1,
+                Apellido2 = usuario.Apellido2,
+                Correo = usuario.Correo,
+                Telefono = usuario.Telefono,
+                Rol = usuario.Rol,
+                Activo = usuario.Activo,
+                FechaCreacion = usuario.FechaCreacion,
+                FechaActualizacion = usuario.FechaActualizacion
+            };
+        }
     }
 }

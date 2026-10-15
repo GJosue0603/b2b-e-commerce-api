@@ -1,103 +1,105 @@
 using b2b_e_commerce_bll;
 using b2b_e_commerce_models;
 using b2b_e_commerce_utilities;
+using b2b_e_commerce_utilities.Excepciones;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
-namespace b2b_e_commerce_api;
-
-[ApiController]
-[Route("v1/autenticacion")]
-[Authorize]
-[Produces("application/json")]
-public class ControladorDeAutenticacion : Controller
+namespace b2b_e_commerce_api.Controladores
 {
-    private readonly IServicioDeAutenticacion _servicioDeAutenticacion;
-
-    public ControladorDeAutenticacion(IServicioDeAutenticacion servicioDeAutenticacion)
+    [ApiController]
+    [Route("v1/autenticacion")]
+    [Authorize]
+    [Produces("application/json")]
+    public class ControladorDeAutenticacion : Controller
     {
-        _servicioDeAutenticacion = servicioDeAutenticacion ?? throw new ArgumentNullException(nameof(servicioDeAutenticacion));
-    }
+        private readonly IServicioDeAutenticacion _servicioDeAutenticacion;
 
-    [HttpPost]
-    [Route("registrar")]
-    [AllowAnonymous]
-    // [ApiExplorerSettings(IgnoreApi = true)]
-    [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
-    public async Task<IActionResult> Registrar([FromBody] RegistroDeUsuario registroDeUsuario)
-    {
-        if (registroDeUsuario == null)
+        public ControladorDeAutenticacion(IServicioDeAutenticacion servicioDeAutenticacion)
         {
-            return BadRequest("El usuario a registrar no puede estar nulo.");
+            _servicioDeAutenticacion = servicioDeAutenticacion ?? throw new ArgumentNullException(nameof(servicioDeAutenticacion));
         }
 
-        if (string.IsNullOrWhiteSpace(registroDeUsuario.Nombre) ||
-            string.IsNullOrWhiteSpace(registroDeUsuario.Apellido1) ||
-            string.IsNullOrWhiteSpace(registroDeUsuario.Correo) ||
-            string.IsNullOrWhiteSpace(registroDeUsuario.Contrasena) ||
-            string.IsNullOrWhiteSpace(registroDeUsuario.Telefono))
+        [HttpPost]
+        [Route("registrar")]
+        [AllowAnonymous]
+        // [ApiExplorerSettings(IgnoreApi = true)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> Registrar([FromBody] RegistroDeUsuario registroDeUsuario)
         {
-            return BadRequest("El Nombre, Apellido1, Correo, Contraseña y Teléfono son requeridos para el registro del usuario.");
+            if (registroDeUsuario == null)
+            {
+                return BadRequest("El usuario a registrar no puede estar nulo.");
+            }
+
+            if (string.IsNullOrWhiteSpace(registroDeUsuario.Nombre) ||
+                string.IsNullOrWhiteSpace(registroDeUsuario.Apellido1) ||
+                string.IsNullOrWhiteSpace(registroDeUsuario.Correo) ||
+                string.IsNullOrWhiteSpace(registroDeUsuario.Contrasena) ||
+                string.IsNullOrWhiteSpace(registroDeUsuario.Telefono))
+            {
+                return BadRequest("El Nombre, Apellido1, Correo, Contraseña y Teléfono son requeridos para el registro del usuario.");
+            }
+
+            if (!UtilidadesCorreo.EsCorreoValido(registroDeUsuario.Correo))
+            {
+                return BadRequest("El formato del correo electrónico no es válido.");
+            }
+
+            if (!UtilidadesTelefono.EsNumeroValido(registroDeUsuario.Telefono))
+            {
+                return BadRequest("El formato del número de teléfono no es válido.");
+            }
+
+            if (!UtilidadesContrasena.EsContrasenaValida(registroDeUsuario.Contrasena))
+            {
+                return BadRequest("La contraseña debe contener al menos 8 caractéres, una mayúscula y un número.");
+            }
+
+            try
+            {
+                var res = await _servicioDeAutenticacion.RegistrarUsuario(registroDeUsuario);
+
+                return Created("Usuario Creado", MapeadorDeUsuarios.ARespuestaDeUsuario(res));
+            }
+            catch (CorreoDuplicadoException ex)
+            {
+                return Conflict(ex.Message);
+            }
         }
 
-        if (!UtilidadesCorreo.EsCorreoValido(registroDeUsuario.Correo))
+        [HttpPost]
+        [Route("login")]
+        [AllowAnonymous]
+        // [ApiExplorerSettings(IgnoreApi = true)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> Login([FromBody] LoginDeUsuario loginDeUsuario)
         {
-            return BadRequest("El formato del correo electrónico no es válido.");
-        }
+            if (string.IsNullOrWhiteSpace(loginDeUsuario.Correo))
+            {
+                return BadRequest("El Correo es requerido.");
+            }
 
-        if (!UtilidadesTelefono.EsNumeroValido(registroDeUsuario.Telefono))
-        {
-            return BadRequest("El formato del número de teléfono no es válido.");
-        }
+            if (string.IsNullOrWhiteSpace(loginDeUsuario.Contrasena))
+            {
+                return BadRequest("La Contraseña es requerida.");
+            }
 
-        if (!UtilidadesContrasena.EsContrasenaValida(registroDeUsuario.Contrasena))
-        {
-            return BadRequest("La contraseña debe contener al menos 8 caractéres, una mayúscula y un número.");
-        }
+            if (!UtilidadesCorreo.EsCorreoValido(loginDeUsuario.Correo))
+            {
+                return BadRequest("El formato del correo electrónico no es válido.");
+            }
 
-        try
-        {
-            var res = await _servicioDeAutenticacion.RegistrarUsuario(registroDeUsuario);
-
-            return Created("Usuario Creado", MapeadorDeUsuarios.ARespuestaDeUsuario(res));
-        }
-        catch (CorreoDuplicadoException ex)
-        {
-            return Conflict(ex.Message);
-        }
-    }
-
-    [HttpPost]
-    [Route("login")]
-    [AllowAnonymous]
-    // [ApiExplorerSettings(IgnoreApi = true)]
-    [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
-    public async Task<IActionResult> Login([FromBody] LoginDeUsuario loginDeUsuario)
-    {
-        if (string.IsNullOrWhiteSpace(loginDeUsuario.Correo))
-        {
-            return BadRequest("El Correo es requerido.");
-        }
-
-        if (string.IsNullOrWhiteSpace(loginDeUsuario.Contrasena))
-        {
-            return BadRequest("La Contraseña es requerida.");
-        }
-
-        if (!UtilidadesCorreo.EsCorreoValido(loginDeUsuario.Correo))
-        {
-            return BadRequest("El formato del correo electrónico no es válido.");
-        }
-
-        try
-        {
-            var token = await _servicioDeAutenticacion.Login(loginDeUsuario);
-            return Ok(token);
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            return Unauthorized(ex.Message);
+            try
+            {
+                var token = await _servicioDeAutenticacion.Login(loginDeUsuario);
+                return Ok(token);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
         }
     }
 }

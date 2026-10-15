@@ -6,44 +6,45 @@ using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using System.Net;
 
-namespace b2b_e_commerce_api;
-
-[ApiController]
-[Route("v1/usuarios")]
-[Authorize]
-[Produces("application/json")]
-public class ControladorDeUsuarios : Controller
+namespace b2b_e_commerce_api.Controladores
 {
-    private readonly IServicioDeUsuarios _servicioDeUsuarios;
-
-    public ControladorDeUsuarios(IServicioDeUsuarios servicioDeUsuarios)
+    [ApiController]
+    [Route("v1/usuarios")]
+    [Authorize]
+    [Produces("application/json")]
+    public class ControladorDeUsuarios : Controller
     {
-        _servicioDeUsuarios = servicioDeUsuarios ?? throw new ArgumentNullException(nameof(servicioDeUsuarios));
-    }
+        private readonly IServicioDeUsuarios _servicioDeUsuarios;
 
-    [HttpGet]
-    [Route("{usuarioId}")]
-    [Authorize(Roles = Constantes.ADMINISTRADOR)]
-    [ProducesResponseType(typeof(RespuestaDeUsuario), (int)HttpStatusCode.OK)]
-    public async Task<IActionResult> ObtenerUsuario(string usuarioId)
-    {
-        if (string.IsNullOrWhiteSpace(usuarioId))
+        public ControladorDeUsuarios(IServicioDeUsuarios servicioDeUsuarios)
         {
-            return BadRequest("El UsuarioId es requerido.");
+            _servicioDeUsuarios = servicioDeUsuarios ?? throw new ArgumentNullException(nameof(servicioDeUsuarios));
         }
 
-        if (!ObjectId.TryParse(usuarioId, out var id))
+        [HttpGet]
+        [Route("{usuarioId}")]
+        [Authorize(Roles = Constantes.ADMINISTRADOR)]
+        [ProducesResponseType(typeof(RespuestaDeUsuario), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> ObtenerUsuario(string usuarioId)
         {
-            return BadRequest("UsuarioId debe ser un ObjectId (24 hex string) válido.");
+            if (string.IsNullOrWhiteSpace(usuarioId))
+            {
+                return BadRequest("El UsuarioId es requerido.");
+            }
+
+            if (!ObjectId.TryParse(usuarioId, out var id))
+            {
+                return BadRequest("UsuarioId debe ser un ObjectId (24 hex string) válido.");
+            }
+
+            var res = await _servicioDeUsuarios.ObtenerUsuarioPorId(usuarioId);
+
+            if (res != null)
+            {
+                return Ok(MapeadorDeUsuarios.ARespuestaDeUsuario(res));
+            }
+
+            return NotFound("Usuario no encontrado.");
         }
-
-        var res = await _servicioDeUsuarios.ObtenerUsuarioPorId(usuarioId);
-
-        if (res != null)
-        {
-            return Ok(MapeadorDeUsuarios.ARespuestaDeUsuario(res));
-        }
-
-        return NotFound("Usuario no encontrado.");
     }
 }
