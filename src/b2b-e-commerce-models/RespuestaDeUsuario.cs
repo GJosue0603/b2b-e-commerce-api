@@ -9,7 +9,7 @@ public class RespuestaDeUsuario
     public string Correo { get; set; }
     public bool CorreoVerificado { get; set; } = false;
     public string Telefono { get; set; }
-    public RolUsuario Rol { get; set; }
+    public string Rol { get; set; }
     public bool Activo { get; set; }
     public DateTime FechaCreacion { get; set; }
     public DateTime FechaActualizacion { get; set; }

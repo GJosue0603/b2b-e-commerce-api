@@ -4,12 +4,12 @@ namespace b2b_e_commerce_models;
 
 public enum RolUsuario
 {
-    [Description("Comprador")]
+    [Description("COMPRADOR")]
     Comprador = 1,
 
-    [Description("Vendedor")]
+    [Description("VENDEDOR")]
     Vendedor = 2,
     
-    [Description("Administrador")]
+    [Description("ADMINISTRADOR")]
     Administrador = 3
 }

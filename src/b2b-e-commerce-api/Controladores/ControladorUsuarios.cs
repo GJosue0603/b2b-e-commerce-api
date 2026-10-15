@@ -28,13 +28,45 @@ public class ControladorUsuarios : Controller
     [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> Registrar([FromBody] RegistroDeUsuario registroDeUsuario)
     {
-        // TODO: Validar que los datos no estén vacíos o nulos
+        if (registroDeUsuario == null)
+        {
+            return BadRequest("El usuario a registrar no puede estar nulo.");
+        }
 
-        // TODO: Validar que los datos tengan un formato correcto
+        if (string.IsNullOrWhiteSpace(registroDeUsuario.Nombre) ||
+            string.IsNullOrWhiteSpace(registroDeUsuario.Apellido1) ||
+            string.IsNullOrWhiteSpace(registroDeUsuario.Correo) ||
+            string.IsNullOrWhiteSpace(registroDeUsuario.Contrasena) ||
+            string.IsNullOrWhiteSpace(registroDeUsuario.Telefono))
+        {
+            return BadRequest("El Nombre, Apellido1, Correo, Contraseña y Teléfono son requeridos para el registro del usuario.");
+        }
 
-        // TODO: Guardar el usuario
+        if (!UtilidadesCorreo.EsCorreoValido(registroDeUsuario.Correo))
+        {
+            return BadRequest("El formato del correo electrónico no es válido.");
+        }
 
-        return Ok("Test Registrar");
+        if (!UtilidadesTelefono.EsNumeroValido(registroDeUsuario.Telefono))
+        {
+            return BadRequest("El formato del número de teléfono no es válido.");
+        }
+
+        if (!UtilidadesContrasena.EsContrasenaValida(registroDeUsuario.Contrasena))
+        {
+            return BadRequest("La contraseña debe contener al menos 8 caractéres, una mayúscula y un número.");
+        }
+
+        try
+        {
+            var res = await _servicioDeUsuarios.RegistrarUsuario(registroDeUsuario);
+
+            return Created("Usuario Creado", MapeadorDeUsuarios.ARespuestaDeUsuario(res));
+        }
+        catch (CorreoDuplicadoException ex)
+        {
+            return Conflict(ex.Message);
+        }
     }
 
     [HttpPost]
@@ -54,7 +86,7 @@ public class ControladorUsuarios : Controller
             return BadRequest("La Contraseña es requerida.");
         }
 
-        if (!ValidadorDeCorreo.EsValido(loginDeUsuario.Correo))
+        if (!UtilidadesCorreo.EsCorreoValido(loginDeUsuario.Correo))
         {
             return BadRequest("El formato del correo electrónico no es válido.");
         }
@@ -89,7 +121,9 @@ public class ControladorUsuarios : Controller
         var res = await _servicioDeUsuarios.ObtenerUsuarioPorId(usuarioId);
 
         if (res != null)
+        {
             return Ok(MapeadorDeUsuarios.ARespuestaDeUsuario(res));
+        }
 
         return NotFound("Usuario no encontrado.");
     }
