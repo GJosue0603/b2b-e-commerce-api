@@ -32,9 +32,9 @@ namespace b2b_e_commerce_bll
 
         public async Task<RegistroPendiente> RegistrarUsuario(RegistroDeUsuario registroDeUsuario)
         {
-            // Normalizar correo y hashear contraseña
+            // Normalizar correo
             var correoNormalizado = registroDeUsuario.Correo.Normalizado();
-            var contrasenaHash = UtilidadesContrasena.Hashear(registroDeUsuario.Contrasena);
+            var fechaYHora = DateTime.UtcNow;
 
             // Verificar que no exista un usuario con este correo la base de datos
             var usuarioPorCorreo = await _repositorioDeUsuarios.ObtenerUsuarioPorCorreo(correoNormalizado);
@@ -43,35 +43,33 @@ namespace b2b_e_commerce_bll
                 throw new CorreoDuplicadoException();
             }
 
-            // Se utiliza una variable para exactamente el mismo valor en ambos campos de fecha.
-            // Si se utilizara DateTime.UtcNow por cada campo, podría existir una diferencia de milisegundos
-            var horaYFechaActual = DateTime.UtcNow;
+            // Verificar que no exista un registro pendiente activo en la base de datos
+            var registroPendientePorCorreo = await _repositorioDeRegistrosPendientes.ObtenerRegistroPendientePorCorreo(correoNormalizado);
+            if (registroPendientePorCorreo != null && registroPendientePorCorreo.FechaExpiracion > fechaYHora)
+            {
+                throw new CorreoDuplicadoException();
+            }
+
+            // Crear el modelo de registro pendiente
+            var contrasenaHash = UtilidadesContrasena.Hashear(registroDeUsuario.Contrasena);
             var codigo = RandomNumberGenerator.GetInt32(100000, 1000000).ToString();
             var codigoHash = UtilidadesContrasena.Hashear(codigo);
-
-            // Crear el modelo de usuario
             var registroPendiente = new RegistroPendiente
             {
-                Usuario = new Usuario
-                {
-                    Nombre = registroDeUsuario.Nombre,
-                    Apellido1 = registroDeUsuario.Apellido1,
-                    Apellido2 = registroDeUsuario.Apellido2,
-                    Correo = correoNormalizado,
-                    ContrasenaHash = contrasenaHash,
-                    Telefono = UtilidadesTelefono.FormatearParaBaseDeDatos(registroDeUsuario.Telefono),
-                    Activo = true,
-                    Rol = UtilidadesEnums.ObtenerDescripcionEnBaseAlValor(RolUsuario.Comprador),
-                    FechaCreacion = horaYFechaActual,
-                    FechaActualizacion = horaYFechaActual
-                },
+                Nombre = registroDeUsuario.Nombre,
+                Apellido1 = registroDeUsuario.Apellido1,
+                Apellido2 = registroDeUsuario.Apellido2,
+                Correo = correoNormalizado,
+                ContrasenaHash = contrasenaHash,
+                Telefono = UtilidadesTelefono.FormatearParaBaseDeDatos(registroDeUsuario.Telefono),
                 CodigoHash = codigoHash,
-                FechaExpiracion = horaYFechaActual.AddHours(24),
+                CodigoExpiracion = fechaYHora.AddMinutes(10),
+                FechaExpiracion = fechaYHora.AddHours(24),
                 IntentosFallidos = 0
             };
 
             // Guardar el usuario en base de datos
-            var res = await _repositorioDeRegistrosPendientes.RegistrarUsuario(registroPendiente);
+            var res = await _repositorioDeRegistrosPendientes.RegistrarUsuario(registroPendiente, fechaYHora);
 
             // TODO: Enviar el cdigo por medio de correo electrónico
 

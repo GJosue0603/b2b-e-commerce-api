@@ -1,8 +1,5 @@
-using b2b_e_commerce_bll.JWT;
 using b2b_e_commerce_models;
 using b2b_e_commerce_repository;
-using b2b_e_commerce_utilities;
-using Microsoft.OpenApi;
 
 namespace b2b_e_commerce_bll
 {
@@ -15,7 +12,7 @@ namespace b2b_e_commerce_bll
     {
         private readonly IRepositorioDeUsuarios _repositorioDeUsuarios;
 
-        public ServicioDeUsuarios(IRepositorioDeUsuarios repositorioDeUsuarios, IProveedorDeTokens proveedorDeTokens)
+        public ServicioDeUsuarios(IRepositorioDeUsuarios repositorioDeUsuarios)
         {
             _repositorioDeUsuarios = repositorioDeUsuarios ?? throw new ArgumentNullException(nameof(repositorioDeUsuarios));
         }

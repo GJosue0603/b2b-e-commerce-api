@@ -1,5 +1,6 @@
 using System;
 using b2b_e_commerce_models;
+using b2b_e_commerce_utilities.Excepciones;
 using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
 
@@ -7,7 +8,8 @@ namespace b2b_e_commerce_repository
 {
     public interface IRepositorioDeRegistrosPendientes
     {
-        Task<RegistroPendiente> RegistrarUsuario(RegistroPendiente registroPendiente);
+        Task<RegistroPendiente> ObtenerRegistroPendientePorCorreo(string correo);
+        Task<RegistroPendiente> RegistrarUsuario(RegistroPendiente registroPendiente, DateTime fechaYHora);
     }
 
     public class RepositorioDeRegistrosPendientes : IRepositorioDeRegistrosPendientes
@@ -28,12 +30,30 @@ namespace b2b_e_commerce_repository
             _collection = client.GetDatabase(databaseName).GetCollection<RegistroPendiente>(COLLECTION_NAME);
         }
 
-        public async Task<RegistroPendiente> RegistrarUsuario(RegistroPendiente registroPendiente)
+        public async Task<RegistroPendiente> ObtenerRegistroPendientePorCorreo(string correo)
         {
-            await _collection.InsertOneAsync(registroPendiente);
+            var filter = Builders<RegistroPendiente>.Filter.Eq(r => r.Correo, correo);
 
-            return registroPendiente;
+            var res = await _collection.Find(filter).FirstOrDefaultAsync();
+
+            return res;
         }
 
+        public async Task<RegistroPendiente> RegistrarUsuario(RegistroPendiente registroPendiente, DateTime fechaYHora)
+        {
+            var filter = Builders<RegistroPendiente>.Filter.Eq(r => r.Correo, registroPendiente.Correo);
+            filter &= Builders<RegistroPendiente>.Filter.Lte(r => r.FechaExpiracion, fechaYHora);
+
+            try
+            {
+                var res = await _collection.FindOneAndReplaceAsync(filter, registroPendiente, new FindOneAndReplaceOptions<RegistroPendiente> { IsUpsert = true, ReturnDocument = ReturnDocument.After });
+
+                return res;
+            }
+            catch (MongoWriteException ex) when (ex.WriteError.Category == ServerErrorCategory.DuplicateKey)
+            {
+                throw new CorreoDuplicadoException();
+            }
+        }
     }
 }
