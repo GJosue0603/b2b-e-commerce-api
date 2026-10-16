@@ -67,6 +67,7 @@ namespace b2b_e_commerce_api
 
             servicios.AddSingleton<IMongoClient>(_ => new MongoClient(mongoConnectionString));
             servicios.AddScoped<IRepositorioDeUsuarios, RepositorioDeUsuarios>();
+            servicios.AddScoped<IRepositorioDeRegistrosPendientes, RepositorioDeRegistrosPendientes>();
 
             return servicios;
         }

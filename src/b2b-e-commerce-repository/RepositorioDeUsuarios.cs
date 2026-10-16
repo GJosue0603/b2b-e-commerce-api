@@ -1,5 +1,4 @@
 using b2b_e_commerce_models;
-using b2b_e_commerce_utilities.Excepciones;
 using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
 
@@ -9,7 +8,6 @@ namespace b2b_e_commerce_repository
     {
         Task<Usuario> ObtenerUsuarioPorId(string id);
         Task<Usuario> ObtenerUsuarioPorCorreo(string correo);
-        Task<Usuario> RegistrarUsuario(Usuario usuario);
     }
 
     public class RepositorioDeUsuarios : IRepositorioDeUsuarios
@@ -46,20 +44,6 @@ namespace b2b_e_commerce_repository
             var usuario = await _collection.Find(filter).FirstOrDefaultAsync();
 
             return usuario;
-        }
-
-        public async Task<Usuario> RegistrarUsuario(Usuario usuario)
-        {
-            try
-            {
-                await _collection.InsertOneAsync(usuario);
-
-                return usuario;
-            }
-            catch (MongoWriteException ex) when (ex.WriteError.Category == ServerErrorCategory.DuplicateKey)
-            {
-                throw new CorreoDuplicadoException();
-            }
         }
     }
 }

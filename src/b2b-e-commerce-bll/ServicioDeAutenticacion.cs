@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using b2b_e_commerce_bll.JWT;
 using b2b_e_commerce_models;
 using b2b_e_commerce_models.Enum;
@@ -10,22 +11,26 @@ namespace b2b_e_commerce_bll
 {
     public interface IServicioDeAutenticacion
     {
-        Task<Usuario> RegistrarUsuario(RegistroDeUsuario registroDeUsuario);
+        Task<RegistroPendiente> RegistrarUsuario(RegistroDeUsuario registroDeUsuario);
         Task<string> Login(LoginDeUsuario loginDeUsuario);
     }
 
     public class ServicioDeAutenticacion : IServicioDeAutenticacion
     {
         private readonly IRepositorioDeUsuarios _repositorioDeUsuarios;
+        private readonly IRepositorioDeRegistrosPendientes _repositorioDeRegistrosPendientes;
         private readonly IProveedorDeTokens _proveedorDeTokens;
 
-        public ServicioDeAutenticacion(IRepositorioDeUsuarios repositorioDeUsuarios, IProveedorDeTokens proveedorDeTokens)
+        public ServicioDeAutenticacion(IRepositorioDeUsuarios repositorioDeUsuarios,
+            IRepositorioDeRegistrosPendientes repositorioDeRegistrosPendientes,
+            IProveedorDeTokens proveedorDeTokens)
         {
             _repositorioDeUsuarios = repositorioDeUsuarios ?? throw new ArgumentNullException(nameof(repositorioDeUsuarios));
+            _repositorioDeRegistrosPendientes = repositorioDeRegistrosPendientes ?? throw new ArgumentNullException(nameof(repositorioDeRegistrosPendientes));
             _proveedorDeTokens = proveedorDeTokens ?? throw new ArgumentNullException(nameof(proveedorDeTokens));
         }
 
-        public async Task<Usuario> RegistrarUsuario(RegistroDeUsuario registroDeUsuario)
+        public async Task<RegistroPendiente> RegistrarUsuario(RegistroDeUsuario registroDeUsuario)
         {
             // Normalizar correo y hashear contraseña
             var correoNormalizado = registroDeUsuario.Correo.Normalizado();
@@ -41,24 +46,34 @@ namespace b2b_e_commerce_bll
             // Se utiliza una variable para exactamente el mismo valor en ambos campos de fecha.
             // Si se utilizara DateTime.UtcNow por cada campo, podría existir una diferencia de milisegundos
             var horaYFechaActual = DateTime.UtcNow;
+            var codigo = RandomNumberGenerator.GetInt32(100000, 1000000).ToString();
+            var codigoHash = UtilidadesContrasena.Hashear(codigo);
 
             // Crear el modelo de usuario
-            var usuario = new Usuario
+            var registroPendiente = new RegistroPendiente
             {
-                Nombre = registroDeUsuario.Nombre,
-                Apellido1 = registroDeUsuario.Apellido1,
-                Apellido2 = registroDeUsuario.Apellido2,
-                Correo = correoNormalizado,
-                ContrasenaHash = contrasenaHash,
-                Telefono = UtilidadesTelefono.FormatearParaBaseDeDatos(registroDeUsuario.Telefono),
-                Activo = true,
-                Rol = UtilidadesEnums.ObtenerDescripcionEnBaseAlValor(RolUsuario.Comprador),
-                FechaCreacion = horaYFechaActual,
-                FechaActualizacion = horaYFechaActual
+                Usuario = new Usuario
+                {
+                    Nombre = registroDeUsuario.Nombre,
+                    Apellido1 = registroDeUsuario.Apellido1,
+                    Apellido2 = registroDeUsuario.Apellido2,
+                    Correo = correoNormalizado,
+                    ContrasenaHash = contrasenaHash,
+                    Telefono = UtilidadesTelefono.FormatearParaBaseDeDatos(registroDeUsuario.Telefono),
+                    Activo = true,
+                    Rol = UtilidadesEnums.ObtenerDescripcionEnBaseAlValor(RolUsuario.Comprador),
+                    FechaCreacion = horaYFechaActual,
+                    FechaActualizacion = horaYFechaActual
+                },
+                CodigoHash = codigoHash,
+                FechaExpiracion = horaYFechaActual.AddHours(24),
+                IntentosFallidos = 0
             };
 
             // Guardar el usuario en base de datos
-            var res = await _repositorioDeUsuarios.RegistrarUsuario(usuario);
+            var res = await _repositorioDeRegistrosPendientes.RegistrarUsuario(registroPendiente);
+
+            // TODO: Enviar el cdigo por medio de correo electrónico
 
             return res;
         }

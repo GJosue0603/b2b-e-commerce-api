@@ -20,5 +20,22 @@ namespace b2b_e_commerce_utilities
                 FechaActualizacion = usuario.FechaActualizacion
             };
         }
+
+                public static RespuestaDeUsuario ARespuestaDeUsuario(RegistroPendiente registroPendiente)
+        {
+            return new RespuestaDeUsuario
+            {
+                Id = registroPendiente.Usuario.Id,
+                Nombre = registroPendiente.Usuario.Nombre,
+                Apellido1 = registroPendiente.Usuario.Apellido1,
+                Apellido2 = registroPendiente.Usuario.Apellido2,
+                Correo = registroPendiente.Usuario.Correo,
+                Telefono = registroPendiente.Usuario.Telefono,
+                Rol = registroPendiente.Usuario.Rol,
+                Activo = registroPendiente.Usuario.Activo,
+                FechaCreacion = registroPendiente.Usuario.FechaCreacion,
+                FechaActualizacion = registroPendiente.Usuario.FechaActualizacion
+            };
+        }
     }
 }

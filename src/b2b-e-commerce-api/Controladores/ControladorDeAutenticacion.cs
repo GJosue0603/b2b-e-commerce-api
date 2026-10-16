@@ -61,7 +61,7 @@ namespace b2b_e_commerce_api.Controladores
             {
                 var res = await _servicioDeAutenticacion.RegistrarUsuario(registroDeUsuario);
 
-                return Created("Usuario Creado", MapeadorDeUsuarios.ARespuestaDeUsuario(res));
+                return Created("Registro Pendiente Creado", MapeadorDeUsuarios.ARespuestaDeUsuario(res));
             }
             catch (CorreoDuplicadoException ex)
             {
