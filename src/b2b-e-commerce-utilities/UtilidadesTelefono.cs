@@ -43,7 +43,7 @@ namespace b2b_e_commerce_utilities
             {
                 var numeroNormalizado = NormalizarNumero(numeroBruto);
 
-                PhoneNumber numeroProcesado = _administradorTelefonos.Parse(numeroBruto, regionPorDefecto);
+                PhoneNumber numeroProcesado = _administradorTelefonos.Parse(numeroNormalizado, regionPorDefecto);
                 if (_administradorTelefonos.IsValidNumber(numeroProcesado))
                 {
                     return _administradorTelefonos.Format(numeroProcesado, PhoneNumberFormat.E164);
