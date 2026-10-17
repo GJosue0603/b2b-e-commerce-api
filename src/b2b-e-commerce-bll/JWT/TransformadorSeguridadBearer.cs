@@ -1,44 +1,45 @@
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 
-namespace b2b_e_commerce_bll.JWT;
-
-public sealed class TransformadorSeguridadBearer
-    : IOpenApiDocumentTransformer
+namespace b2b_e_commerce_bll.JWT
 {
-    public Task TransformAsync(
-        OpenApiDocument document,
-        OpenApiDocumentTransformerContext context,
-        CancellationToken cancellationToken)
+    public sealed class TransformadorSeguridadBearer
+        : IOpenApiDocumentTransformer
     {
-        document.Components ??= new OpenApiComponents();
-
-        document.Components.SecuritySchemes ??=
-            new Dictionary<string, IOpenApiSecurityScheme>();
-
-        document.Components.SecuritySchemes["Bearer"] =
-            new OpenApiSecurityScheme
-            {
-                Type = SecuritySchemeType.Http,
-                Scheme = "bearer",
-                BearerFormat = "JWT",
-                In = ParameterLocation.Header
-            };
-
-        foreach (var path in document.Paths.Values)
+        public Task TransformAsync(
+            OpenApiDocument document,
+            OpenApiDocumentTransformerContext context,
+            CancellationToken cancellationToken)
         {
-            foreach (var operation in path.Operations.Values)
-            {
-                operation.Security ??= [];
+            document.Components ??= new OpenApiComponents();
 
-                operation.Security.Add(new OpenApiSecurityRequirement
+            document.Components.SecuritySchemes ??=
+                new Dictionary<string, IOpenApiSecurityScheme>();
+
+            document.Components.SecuritySchemes["Bearer"] =
+                new OpenApiSecurityScheme
                 {
-                    [new OpenApiSecuritySchemeReference(
-                        "Bearer", document)] = []
-                });
-            }
-        }
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header
+                };
 
-        return Task.CompletedTask;
+            foreach (var path in document.Paths.Values)
+            {
+                foreach (var operation in path.Operations.Values)
+                {
+                    operation.Security ??= [];
+
+                    operation.Security.Add(new OpenApiSecurityRequirement
+                    {
+                        [new OpenApiSecuritySchemeReference(
+                            "Bearer", document)] = []
+                    });
+                }
+            }
+
+            return Task.CompletedTask;
+        }
     }
 }

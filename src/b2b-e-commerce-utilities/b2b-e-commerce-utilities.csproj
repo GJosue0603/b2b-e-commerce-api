@@ -11,4 +11,8 @@
     <ProjectReference Include="..\b2b-e-commerce-models\b2b-e-commerce-models.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="libphonenumber-csharp" Version="3.7.1.306" />
+  </ItemGroup>
+
 </Project>

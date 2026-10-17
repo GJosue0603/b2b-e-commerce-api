@@ -76,5 +76,31 @@ namespace b2b_e_commerce_utilities
                 return false;
             }
         }
+
+        public static bool EsContrasenaValida(string contrasena)
+        {
+            var mayusculas = contrasena.Where(char.IsUpper).ToList();
+            var numeros = contrasena.Where(char.IsDigit).ToList();
+
+            // La contraseña debe contener al menos 8 caractéres
+            if (contrasena.Length < 8)
+            {
+                return false;
+            }
+
+            // La contraseña debe contener al menos una mayúscula
+            if (mayusculas.Count < 1)
+            {
+                return false;
+            }
+
+            // La contraseña debe contener al menos un número
+            if (numeros.Count < 1)
+            {
+                return false;
+            }
+
+            return true;
+        }
     }
 }
