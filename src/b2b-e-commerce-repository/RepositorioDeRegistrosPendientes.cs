@@ -50,7 +50,8 @@ namespace b2b_e_commerce_repository
 
                 return res;
             }
-            catch (MongoWriteException ex) when (ex.WriteError.Category == ServerErrorCategory.DuplicateKey)
+            // El código 11,000 es el código de DuplicateKey para esta Excepción de Mongo
+            catch (MongoCommandException ex) when (ex.Code == 11000)
             {
                 throw new CorreoDuplicadoException();
             }
