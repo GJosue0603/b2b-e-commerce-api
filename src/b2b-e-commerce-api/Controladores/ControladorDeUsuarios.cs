@@ -46,5 +46,32 @@ namespace b2b_e_commerce_api.Controladores
 
             return NotFound("Usuario no encontrado.");
         }
+
+        [HttpGet]
+        [Route("")]
+        [Authorize(Roles = Constantes.ADMINISTRADOR)]
+        [ProducesResponseType(typeof(ResultadoPaginado<RespuestaDeUsuario>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> ObtenerListaDeUsuarios(
+            string? nombre = null,
+            string? correo = null,
+            bool? estadoDeUsuario = null,
+            int numeroDePagina = 1,
+            int cantidadPorPagina = 25
+        )
+        {
+            if (numeroDePagina < 1)
+            {
+                return BadRequest("El número de página tiene que ser mayor o igual a 1.");
+            }
+
+            if (cantidadPorPagina > 100)
+            {
+                return BadRequest("La cantidad de usuarios por página tiene que ser menor o igual a 100.");
+            }
+
+            var res = await _servicioDeUsuarios.ObtenerListaDeUsuarios(nombre, correo, estadoDeUsuario, numeroDePagina, cantidadPorPagina);
+
+            return Ok(res);
+        }
     }
 }
