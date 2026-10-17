@@ -13,11 +13,7 @@ namespace b2b_e_commerce_utilities
             try
             {
                 // 1. Limpieza inicial: Si el usuario escribe "00" en lugar de "+", lo convertimos a "+"
-                string entradaSanitizada = numeroBruto.Trim();
-                if (entradaSanitizada.StartsWith("00"))
-                {
-                    entradaSanitizada = "+" + entradaSanitizada.Substring(2);
-                }
+                string entradaSanitizada = NormalizarNumero(numeroBruto);
 
                 // 2. Procesar el texto. La librería ignora automáticamente los paréntesis, espacios y guiones.
                 // Si detecta un '+', identifica el país de forma automática e ignora el parámetro 'regionPorDefecto'.
@@ -38,8 +34,15 @@ namespace b2b_e_commerce_utilities
         /// </summary>
         public static string FormatearParaBaseDeDatos(string numeroBruto, string regionPorDefecto = "CR")
         {
+            if (string.IsNullOrWhiteSpace(numeroBruto))
+            {
+                return string.Empty; // Retorna vacío si no se pudo procesar
+            }
+
             try
             {
+                var numeroNormalizado = NormalizarNumero(numeroBruto);
+
                 PhoneNumber numeroProcesado = _administradorTelefonos.Parse(numeroBruto, regionPorDefecto);
                 if (_administradorTelefonos.IsValidNumber(numeroProcesado))
                 {
@@ -49,6 +52,18 @@ namespace b2b_e_commerce_utilities
             catch (NumberParseException) { }
 
             return string.Empty; // Retorna vacío si no se pudo procesar
+        }
+
+        private static string NormalizarNumero(string numeroBruto)
+        {
+            var numeroNormalizado = numeroBruto.Trim();
+
+            if (numeroNormalizado.StartsWith("00"))
+            {
+                numeroNormalizado = "+" + numeroNormalizado[2..];
+            }
+
+            return numeroNormalizado;
         }
     }
 }

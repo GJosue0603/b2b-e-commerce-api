@@ -53,7 +53,7 @@ namespace b2b_e_commerce_repository
             // El código 11,000 es el código de DuplicateKey para esta Excepción de Mongo
             catch (MongoCommandException ex) when (ex.Code == 11000)
             {
-                throw new CorreoDuplicadoException();
+                throw new CorreoDuplicadoException("Ya existe una solicitud de registro pendiente para este correo electrónico.");
             }
         }
     }

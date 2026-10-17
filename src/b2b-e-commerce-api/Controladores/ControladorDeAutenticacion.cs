@@ -25,7 +25,7 @@ namespace b2b_e_commerce_api.Controladores
         [Route("registrar")]
         [AllowAnonymous]
         // [ApiExplorerSettings(IgnoreApi = true)]
-        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Created)]
         public async Task<IActionResult> Registrar([FromBody] RegistroDeUsuario registroDeUsuario)
         {
             if (registroDeUsuario == null)

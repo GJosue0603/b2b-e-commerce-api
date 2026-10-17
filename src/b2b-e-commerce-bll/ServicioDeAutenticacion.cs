@@ -47,7 +47,7 @@ namespace b2b_e_commerce_bll
             var registroPendientePorCorreo = await _repositorioDeRegistrosPendientes.ObtenerRegistroPendientePorCorreo(correoNormalizado);
             if (registroPendientePorCorreo != null && registroPendientePorCorreo.FechaExpiracion > fechaYHora)
             {
-                throw new CorreoDuplicadoException();
+                throw new CorreoDuplicadoException("Ya existe una solicitud de registro pendiente para este correo electrónico.");
             }
 
             // Crear el modelo de registro pendiente
