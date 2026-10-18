@@ -9,9 +9,7 @@ namespace b2b_e_commerce_repository
         Task<Usuario> ObtenerUsuarioPorId(string id);
         Task<Usuario> ObtenerUsuarioPorCorreo(string correo);
         Task<ResultadoPaginado<RespuestaDeUsuario>> ObtenerListaDeUsuarios(
-            string? nombre = null,
-            string? correo = null,
-            bool? estadoDeUsuario = null,
+            bool? activo = null,
             int numeroDePagina = 1,
             int cantidadPorPagina = 25
         );
@@ -54,8 +52,6 @@ namespace b2b_e_commerce_repository
         }
 
         public async Task<ResultadoPaginado<RespuestaDeUsuario>> ObtenerListaDeUsuarios(
-            string? nombre = null,
-            string? correo = null,
             bool? activo = null,
             int numeroDePagina = 1,
             int cantidadPorPagina = 25
@@ -63,9 +59,9 @@ namespace b2b_e_commerce_repository
         {
             var filter = FilterDefinition<Usuario>.Empty;
 
-            if(activo.HasValue)
+            if (activo.HasValue)
             {
-                filter &= Builders<Usuario>.Filter.Eq(u => u.Activo, activo);    
+                filter &= Builders<Usuario>.Filter.Eq(u => u.Activo, activo);
             }
 
             var project = Builders<Usuario>.Projection.Expression(usuario => new RespuestaDeUsuario
@@ -83,23 +79,32 @@ namespace b2b_e_commerce_repository
             });
 
             var ordenar = Builders<Usuario>.Sort.Descending(u => u.FechaCreacion)
-                .Descending(u => u.Apellido1);
+                .Descending(u => u.Apellido1)
+                .Descending(u => u.Id);
+
+            // Calcular cantidad de registros a omitir
+            int cantidadDeRegistrosAOmitir = checked((int)(((long)numeroDePagina - 1) * cantidadPorPagina));
 
             // Traer usuarios de base de datos
             var usuariosTask = _collection
                 .Find(filter)
                 .Sort(ordenar)
-                .Skip(cantidadPorPagina * (numeroDePagina - 1))
+                .Skip(cantidadDeRegistrosAOmitir)
                 .Limit(cantidadPorPagina)
                 .Project(project)
                 .ToListAsync();
 
-            // Traer cantidad total de usuarios (Según el filtro aplicado)
-            var cantidadTotalTask = _collection.Find(filter).CountDocumentsAsync();
+            // Traer cantidad total de usuarios
+            var cantidadTotalTask = _collection.CountDocumentsAsync(filter);
 
             await Task.WhenAll(usuariosTask, cantidadTotalTask);
 
-            return new ResultadoPaginado<RespuestaDeUsuario>(usuariosTask.Result, cantidadTotalTask.Result);
+            return new ResultadoPaginado<RespuestaDeUsuario>(
+                usuariosTask.Result,
+                cantidadTotalTask.Result,
+                numeroDePagina,
+                cantidadPorPagina
+            );
         }
     }
 }

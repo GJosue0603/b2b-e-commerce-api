@@ -52,9 +52,7 @@ namespace b2b_e_commerce_api.Controladores
         [Authorize(Roles = Constantes.ADMINISTRADOR)]
         [ProducesResponseType(typeof(ResultadoPaginado<RespuestaDeUsuario>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> ObtenerListaDeUsuarios(
-            string? nombre = null,
-            string? correo = null,
-            bool? estadoDeUsuario = null,
+            bool? activo = null,
             int numeroDePagina = 1,
             int cantidadPorPagina = 25
         )
@@ -64,12 +62,18 @@ namespace b2b_e_commerce_api.Controladores
                 return BadRequest("El número de página tiene que ser mayor o igual a 1.");
             }
 
-            if (cantidadPorPagina > 100)
+            if (cantidadPorPagina < 1 || cantidadPorPagina > 100)
             {
-                return BadRequest("La cantidad de usuarios por página tiene que ser menor o igual a 100.");
+                return BadRequest("La cantidad de usuarios por página tiene que estar entre 1 y 100.");
             }
 
-            var res = await _servicioDeUsuarios.ObtenerListaDeUsuarios(nombre, correo, estadoDeUsuario, numeroDePagina, cantidadPorPagina);
+            long cantidadDeRegistrosAOmitir = ((long)numeroDePagina - 1) * cantidadPorPagina;
+            if (cantidadDeRegistrosAOmitir > int.MaxValue)
+            {
+                return BadRequest("El número de página solicitado supera el límite permitido.");
+            }
+
+            var res = await _servicioDeUsuarios.ObtenerListaDeUsuarios(activo, numeroDePagina, cantidadPorPagina);
 
             return Ok(res);
         }

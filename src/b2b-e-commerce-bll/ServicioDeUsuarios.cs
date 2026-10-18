@@ -7,9 +7,7 @@ namespace b2b_e_commerce_bll
     {
         Task<Usuario> ObtenerUsuarioPorId(string id);
         Task<ResultadoPaginado<RespuestaDeUsuario>> ObtenerListaDeUsuarios(
-            string? nombre = null,
-            string? correo = null,
-            bool? estadoDeUsuario = null,
+            bool? activo = null,
             int numeroDePagina = 1,
             int cantidadPorPagina = 25
         );
@@ -30,14 +28,12 @@ namespace b2b_e_commerce_bll
         }
 
         public async Task<ResultadoPaginado<RespuestaDeUsuario>> ObtenerListaDeUsuarios(
-            string? nombre = null,
-            string? correo = null,
-            bool? estadoDeUsuario = null,
+            bool? activo = null,
             int numeroDePagina = 1,
             int cantidadPorPagina = 25
         )
         {
-            return await _repositorioDeUsuarios.ObtenerListaDeUsuarios(nombre, correo, estadoDeUsuario, numeroDePagina, cantidadPorPagina);
+            return await _repositorioDeUsuarios.ObtenerListaDeUsuarios(activo, numeroDePagina, cantidadPorPagina);
         }
     }
 }
